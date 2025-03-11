@@ -1,0 +1,81 @@
+/* ======= Reset Global ======= */
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ======= Navbar ======= */
+/* Essa regra será aplicada a todas as navbars para que tenham o mesmo visual */
+.navbar {
+  background-color: #6600ff !important;  /* Cor de fundo (azul, altere conforme desejar) */
+  color: #fff !important;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: #fff !important;
+}
+
+/* ======= Imagem do Navbar ======= */
+#navbar-img {
+  height: 70px;
+  padding-left: 10px;
+}
+
+/* ======= Responsividade ======= */
+@media (max-width: 768px) {
+  #navbarSupportedContent ul * {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ======= Mapa ======= */
+#map-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px; /* Espaçamento abaixo da navbar */
+}
+
+#map {
+  height: 500px;
+  width: 90%;
+  max-width: 900px; /* Limita a largura do mapa */
+  border-radius: 8px; /* Arredondamento opcional */
+}
+
+/* ======= Formulário ======= */
+.form-width {
+  max-width: 400px;
+  margin: auto;
+}
+
+/* ======= Botões ======= */
+.add-btn {
+  margin-top: 5px;
+}
+
+/* ======= Listagem ======= */
+.listar {
+  width: 50%;
+}
+
+/* ======= Footer ======= */
+footer {
+  background-color: #f8f9fa;
+  padding: 10px;
+}
+
+.updates {
+  display: flex;
+  flex-direction: column; /* Organiza os elementos na vertical */
+  align-items: center; /* Centraliza horizontalmente */
+  justify-content: center; /* Centraliza verticalmente */
+  height: 100vh; /* Faz a `div` ocupar a tela inteira */
+  text-align: center; /* Centraliza o texto */
+}
+
