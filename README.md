@@ -15,4 +15,4 @@ REDIS_URI=redis://default:Eug2ealk56sHVEcT3tLg7MVYvgDMonfL@redis-19760.c308.sa-e
 
 rode o projeto usando node back/index.js (instale as dependencias do express dentro do back se não o app nao vai funcionar)
 
-temporariamente o app esta com alguns bugs em relação ao redis (pendente a correção ate o dia util da entrega da atividade caso o professor esteja acompanhando o github do projeto)
+temporariamente o app esta com alguns bugs em relação ao redis (nao consegui corrigir o bug em questão a tempo da entrega caso o professor esteja acompanhando o github do projeto)
