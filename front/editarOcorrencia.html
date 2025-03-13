@@ -54,10 +54,22 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" href="index.html" style="color: #fff;">Home</a>
+            <a class="nav-link active" href="#">Hands-On-Safe</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="listaOcorrencia.html" style="color: #fff;">Lista Ocorrências</a>
+            <a class="nav-link" href="listaOcorrencia.html">Status e andamento</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="editar-excluir.html">Editar/Excluir Ocorrências</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="grafico.html">Graficos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="geocodificacao.html">Localidades</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="mapa.html">Mapa</a>
           </li>
         </ul>
       </div>
@@ -109,7 +121,7 @@
   <!-- Script inline corrigido -->
   <script>
     // Ajuste conforme o seu backend
-    const baseURL = "http://localhost:3000/";
+    const baseURL = "http://localhost:3000/denuncias";
 
     // Pega o ID da ocorrência da URL
     const urlParams = new URLSearchParams(window.location.search);
