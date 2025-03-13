@@ -30,7 +30,6 @@
         justify-content: center;
         margin-top: 10px;
       }
-
       #map {
         height: 500px;
         width: 100%;
@@ -38,7 +37,6 @@
         border-radius: 8px;
         cursor: crosshair;
       }
-
       .form-width {
         max-width: 400px;
         margin: auto;
@@ -132,7 +130,6 @@
         <!-- Botões -->
         <div class="d-flex gap-2">
           <button class="btn btn-success" onclick="salvar()">Adicionar</button>
-          <!-- Note que o endpoint para rascunho usa o plural ("/rascunhos") -->
           <button class="btn btn-warning" onclick="salvarRascunho()">Rascunho</button>
           <button class="btn btn-primary" onclick="recuperarRascunho()">Recuperar Rascunho</button>
         </div>
@@ -157,139 +154,139 @@
       crossorigin=""
     ></script>
 
-    <!-- Código Inline: Funções de Fetch para Inserir e Recuperar Ocorrências -->
+    <!-- Funções de Fetch -->
     <script>
-      // Atualize o endpoint base para apontar para a rota correta do backend (por exemplo, "/denuncias")
+      // Endpoint base para denúncias
       const apiURL = "http://localhost:3000/denuncias";
+      const apiRascunhos = "http://localhost:3000/denuncias/rascunho";
 
-      // Coleta os valores dos campos do formulário
-      // Coleta os valores dos campos do formulário
+      // Função que coleta os valores do formulário para salvar a ocorrência
       function getValuesField() {
-        // Se o marcador não existir, pega o centro do mapa
         const latLng = marker ? marker.getLatLng() : map.getCenter();
-
         return {
-          nome: document.getElementById("titulo").value, // Mapeia o título para o campo 'nome'
+          nome: document.getElementById("titulo").value, // Note que 'nome' é usado no backend para a ocorrência
           tipo: document.getElementById("tipo").value,
-          dataOcorrencia: document.getElementById("data").value, // Campo de data para 'dataOcorrencia'
-          horarioOcorrencia: document.getElementById("hora").value, // Campo de hora para 'horarioOcorrencia'
-          descricao: document.getElementById("descricao").value, // Campo extra para descrição
-          status: "Pendente", // Adicionado: campo obrigatório 'status'
+          dataOcorrencia: document.getElementById("data").value,
+          horarioOcorrencia: document.getElementById("hora").value,
+          descricao: document.getElementById("descricao").value,
+          status: "Pendente",
           localizacao: {
             type: "Point",
-            // Padrão GeoJSON: [longitude, latitude]
             coordinates: [latLng.lng, latLng.lat],
           }
         };
       }
 
-
+      // Função para salvar ocorrência (salva no MongoDB)
       function salvar() {
         const obj = getValuesField();
         fetch(apiURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(obj),
+          body: JSON.stringify(obj)
         })
-          .then(response => {
-            if (response.ok) {
-              alert("Ocorrência salva com sucesso!");
-              // Adiciona o novo marcador diretamente no mapa
-              L.marker([obj.localizacao.coordinates[1], obj.localizacao.coordinates[0]])
-                .addTo(map)
-                .bindPopup(`<strong>${obj.nome}</strong><br>${obj.descricao || ""}`);
-              marker.setLatLng(map.getCenter());
-
-              // Após salvar a denúncia, remove o rascunho do Redis
-              fetch("http://localhost:3000/denuncias/rascunho", {
-                method: "DELETE"
-              })
-                .then(() => console.log("Rascunho removido do Redis"))
-                .catch(err => console.error("Erro ao remover rascunho:", err));
-            } else {
-              alert("Falha ao salvar a ocorrência!");
-            }
-          })
-          .catch(error => {
-            console.error("Erro ao salvar a ocorrência:", error);
-            alert("Erro ao conectar ao servidor!");
-          });
+        .then(response => {
+          if (response.ok) {
+            alert("Ocorrência salva com sucesso!");
+            // Adiciona o marcador no mapa
+            L.marker([obj.localizacao.coordinates[1], obj.localizacao.coordinates[0]])
+              .addTo(map)
+              .bindPopup(`<strong>${obj.nome}</strong><br>${obj.descricao || ""}`);
+            marker.setLatLng(map.getCenter());
+          } else {
+            alert("Falha ao salvar a ocorrência!");
+          }
+        })
+        .catch(error => {
+          console.error("Erro ao salvar a ocorrência:", error);
+          alert("Erro ao conectar ao servidor!");
+        });
       }
 
-
-
-      // Função para salvar rascunho (POST para o endpoint /rascunhos)
       function salvarRascunho() {
-        const obj = getValuesField();
-        fetch("http://localhost:3000/denuncias/rascunho", {
+        const latLng = marker.getLatLng();
+        const rascunho = {
+          titulo: document.getElementById("titulo").value,
+          descricao: document.getElementById("descricao").value,
+          tipo: document.getElementById("tipo").value,
+          data: document.getElementById("data").value,
+          hora: document.getElementById("hora").value,
+          lat: latLng.lat,
+          lng: latLng.lng
+        };
+
+        fetch(apiRascunhos, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(obj),
+          body: JSON.stringify(rascunho)
         })
-          .then(response => {
-            if (response.ok) {
-              alert("Rascunho salvo com sucesso!");
-            } else {
-              alert("Falha ao salvar o rascunho!");
-            }
-          })
-          .catch(error => {
-            console.error("Erro ao salvar o rascunho:", error);
-            alert("Erro ao conectar ao servidor!");
-          });
-          
+        .then(response => {
+          if (response.ok) {
+            alert("Rascunho salvo com sucesso por 10 minutos !");
+            return response.json();
+          }
+          throw new Error("Falha ao salvar rascunho");
+        })
+        .then(data => {
+          localStorage.setItem('ultimoRascunhoId', data.id); // Guarda o ID
+        })
+        .catch(error => {
+          console.error("Erro:", error);
+          alert("Erro ao salvar rascunho!");
+        });
       }
 
-      // Função para recuperar rascunho (GET para o endpoint /rascunhos)
+      // Função para RECUPERAR rascunho do Redis
       function recuperarRascunho() {
-        fetch("http://localhost:3000/denuncias/rascunho")
-          .then(response => response.json())
-          .then(data => {
-            if (data) {
-              document.getElementById("titulo").value = data.titulo || "";
-              document.getElementById("tipo").value = data.tipo || "";
-              document.getElementById("descricao").value = data.descricao || "";
-              document.getElementById("data").value = data.data || "";
-              document.getElementById("hora").value = data.hora || "";
-              alert("Rascunho recuperado!");
-            } else {
+        fetch(apiRascunhos)
+          .then(response => {
+            if (!response.ok) throw new Error("Erro ao buscar rascunhos");
+            return response.json();
+          })
+          .then(rascunhos => {
+            if (rascunhos.length === 0) {
               alert("Nenhum rascunho encontrado!");
+              return;
             }
+
+            // Pega o último rascunho (você pode implementar uma seleção)
+            const ultimo = rascunhos[0]; 
+
+            // Preenche os campos
+            document.getElementById("titulo").value = ultimo.titulo || "";
+            document.getElementById("descricao").value = ultimo.descricao || "";
+            document.getElementById("tipo").value = ultimo.tipo || "";
+            document.getElementById("data").value = ultimo.data || "";
+            document.getElementById("hora").value = ultimo.hora || "";
+
+            // Atualiza a posição do marcador
+            marker.setLatLng([ultimo.lat, ultimo.lng]);
+            map.setView([ultimo.lat, ultimo.lng], 15);
           })
           .catch(error => {
-            console.error("Erro ao recuperar o rascunho:", error);
-            alert("Erro ao conectar ao servidor!");
+            console.error("Erro:", error);
+            alert("Erro ao recuperar rascunhos!");
           });
       }
     </script>
-
-    <!-- Código Inline: Inicialização do Mapa e Carregamento de Marcadores Existentes -->
+    <!-- Inicialização do Mapa e Carregamento de Marcadores -->
     <script>
       let map;
       let marker;
 
       document.addEventListener("DOMContentLoaded", function () {
-        // Inicializa o mapa com um centro padrão
         map = L.map("map").setView([-6.755241969763168, -38.967627363080744], 9);
-
-        // Adiciona a camada de tiles do OpenStreetMap
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap contributors",
+          attribution: "&copy; OpenStreetMap contributors"
         }).addTo(map);
-
-        // Cria um marcador draggável no centro do mapa (para nova ocorrência)
         marker = L.marker(map.getCenter(), { draggable: true }).addTo(map);
         marker.on("dragend", function () {
           console.log("Nova posição do marcador:", marker.getLatLng());
         });
-
-        // Carrega marcadores existentes (ocorrências já cadastradas)
         carregarMarcadores();
       });
 
-      // Função para carregar ocorrências e adicionar marcadores ao mapa
       function carregarMarcadores() {
-        // Use o endpoint correto para listar denúncias
         fetch(apiURL)
           .then(response => {
             if (!response.ok) {
@@ -300,10 +297,8 @@
           .then(ocorrencias => {
             console.log("Marcadores recebidos:", ocorrencias);
             ocorrencias.forEach(ocorrencia => {
-              // Use a propriedade correta: 'localizacao' em vez de 'geometria'
               if (ocorrencia.localizacao && ocorrencia.localizacao.coordinates) {
                 const coords = ocorrencia.localizacao.coordinates;
-                // Cria um marcador para cada ocorrência
                 L.marker([coords[1], coords[0]])
                   .addTo(map)
                   .bindPopup(
@@ -318,7 +313,7 @@
       }
     </script>
 
-    <!-- Outros scripts externos, se necessário -->
+    <!-- Outros scripts, se necessário -->
     <script src="script.js"></script>
     <script src="ocorrenciaList.js"></script>
   </body>
